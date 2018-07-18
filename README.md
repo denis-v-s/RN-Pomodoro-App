@@ -1,3 +1,15 @@
+## Version 1.0
+*Timer counts down
+*Busy and break time can be adjusted by the user
+*User can take an early break, or go back to work before the break is over
+
+Live example: https://snack.expo.io/@haosmark/github.com-haosmark-rn-pomodoro-app
+
+Screenshots:
+![First screen](https://i.imgur.com/IzBtk6M.png)
+![User working countdown](https://i.imgur.com/lNpsgxn.png)
+![User on a break countdown](https://i.imgur.com/57QSUbB.png)
+
 # Project 1 - Pomodoro Timer
 For this project, you'll be implementing a Pomodoro timer. This timer will help
 people trying to use the [Pomodoro Technique](https://en.wikipedia.org/wiki/Pomodoro_Technique).
