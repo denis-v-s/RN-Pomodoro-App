@@ -91,7 +91,7 @@ export default class App extends React.Component {
 
   render() {
     // elapsed minutes
-    let m = Math.floor(this.state.runtime / 60)
+    let m = (this.pomodoroActive) ? Math.floor(this.state.runtime / 60) : this.state.busyTime
     // elapsed seconds
     let s = (this.state.runtime % 60)
 
