@@ -1,14 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import TimeSettingComponent from './TimeSettingComponent.js'
+import {vibrate} from './utils'
 
 export default class App extends React.Component {
   constructor() {
     super()
     this.state = {
       runtime: 0,
-      busyTime: 1,
-      breakTime: 1
+      busyTime: 25,
+      breakTime: 5
     }
     
     this.buttonText = 'start pomodoro'
@@ -19,7 +20,7 @@ export default class App extends React.Component {
 
   // make changes to UI and start the timer
   startPomodoro() {
-    this.timerThreshold = this.state.busyTime
+    this.setState({runtime: this.state.busyTime * 60})
     // set update to 1s interval
     this.interval = setInterval(this.incrementTimer, 1000)
     this.pomodoroActive = true
@@ -31,7 +32,6 @@ export default class App extends React.Component {
     this.buttonText = 'start pomodoro'
     this.buttonStyle = 'blue'
     this.pomodoroActive = false
-    this.timerThreshold = this.state.busyTime
     this.setState({ runtime: 0 })
   }
 
@@ -40,7 +40,7 @@ export default class App extends React.Component {
     this.buttonText = 'cancel breaktime'
     this.buttonStyle = 'red'
     this.activeTimerType = timerType.breakTimer
-    this.timerThreshold = this.state.breakTime
+    this.setState({runtime: this.state.breakTime * 60})
   }
 
   // pomodoro as busy
@@ -48,7 +48,7 @@ export default class App extends React.Component {
     this.buttonText = 'take a break'
     this.buttonStyle = 'green'
     this.activeTimerType = timerType.busyTimer
-    this.timerThreshold = this.state.busyTime
+    this.setState({runtime: this.state.busyTime * 60})
   }
 
   // switches between break, active, and vice-versa
@@ -59,23 +59,23 @@ export default class App extends React.Component {
       } else {
         this.setPomodoroBusyState()
       }
+      // let the user know that the timer has ran out
+      vibrate()
     } else {
       this.startPomodoro()
       this.setPomodoroBusyState()
     }
-
-    this.setState({runtime: 0})
   }
 
   // handle timer incrementing within the app state
   incrementTimer = () => {
     // check if the time ran out, and switch pomodoro state    
-    if (this.state.runtime >= this.timerThreshold * 60) {
+    if (this.state.runtime == 0) {
       this.switchPomodoroState()
     }
     
     this.setState(prevState => ({
-      runtime: prevState.runtime + 1
+      runtime: prevState.runtime - 1
     }))
   }
 
