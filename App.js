@@ -100,12 +100,14 @@ export default class App extends React.Component {
         <TimeSettingComponent 
           text='keep BUSY for' 
           minutes={this.state.busyTime} 
-          onSettingsChange={this.handleBusyTimeChange} />
+          onSettingsChange={this.handleBusyTimeChange} 
+          restrictControlInteraction={this.pomodoroActive} />
 
         <TimeSettingComponent 
           text='then take a BREAK for' 
           minutes={this.state.breakTime} 
-          onSettingsChange={this.handleBreakTimeChange} />
+          onSettingsChange={this.handleBreakTimeChange} 
+          restrictControlInteraction={this.pomodoroActive} />
 
         <Button color={this.buttonStyle} title={this.buttonText} onPress={() => this.switchPomodoroState()} />
 

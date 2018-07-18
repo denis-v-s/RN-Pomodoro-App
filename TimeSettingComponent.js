@@ -39,7 +39,8 @@ export default class TimeSettingComponent extends React.Component {
                         maximumValue={60} 
                         step={1} 
                         value={this.state.minutes} 
-                        onValueChange={ this.handleTimeSettingChange }
+                        onValueChange={this.handleTimeSettingChange} 
+                        disabled={this.props.restrictControlInteraction}
                         />
                     <Text>{this.state.minutes} minutes</Text>
                 </View>
