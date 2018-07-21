@@ -7,20 +7,26 @@ export default class App extends React.Component {
   constructor() {
     super()
     this.state = {
+      activeTimerType: null,
       runtime: 0,
       busyTime: 25,
-      breakTime: 5
+      breakTime: 5,
+      message: ''
     }
     
     this.buttonText = 'start pomodoro'
     this.pomodoroActive = false
     this.buttonStyle = 'blue'
-    this.timerThreshold = this.state.busyTime
+    this.prevTimerType = null
   }
 
   // make changes to UI and start the timer
   startPomodoro() {
-    this.setState({runtime: this.state.busyTime * 60})
+    this.setState({
+      runtime: this.state.busyTime * 60,
+      activeTimerType: timerType.busyTimer,
+      message: 'wow, so much busy! Great work, keep on going!'
+    })
     // set update to 1s interval
     this.interval = setInterval(this.incrementTimer, 1000)
     this.pomodoroActive = true
@@ -32,29 +38,63 @@ export default class App extends React.Component {
     this.buttonText = 'start pomodoro'
     this.buttonStyle = 'blue'
     this.pomodoroActive = false
-    this.setState({ runtime: 0 })
+    this.setState({ 
+      runtime: 0,
+      message: ''
+    })
   }
 
   // pomodoro on a break
   setPomodoroBreakState() {
     this.buttonText = 'cancel breaktime'
     this.buttonStyle = 'red'
-    this.activeTimerType = timerType.breakTimer
-    this.setState({runtime: this.state.breakTime * 60})
+    this.setState({
+      runtime: this.state.breakTime * 60,
+      activeTimerType: timerType.breakTimer,
+      message: 'taking a break, are we!?'
+    })
   }
 
   // pomodoro as busy
   setPomodoroBusyState() {
     this.buttonText = 'take a break'
     this.buttonStyle = 'green'
-    this.activeTimerType = timerType.busyTimer
-    this.setState({runtime: this.state.busyTime * 60})
+    this.setState({
+      runtime: this.state.busyTime * 60,
+      activeTimerType: timerType.busyTimer,
+      message: 'Great work, keep on going! Busy busy busy...'
+    })
+  }
+
+  togglePomodoroPause() {
+    // resume timer, if pomodoro was paused
+    if (this.state.activeTimerType === timerType.paused) {
+      this.interval = setInterval(this.incrementTimer, 1000)
+      this.setState({
+        activeTimerType: this.prevTimerType,
+      }, function() {
+        if (this.state.activeTimerType === timerType.busyTimer) {
+          this.setState({message: 'Busy busy busy! Keep on going!'})
+        } else if (this.state.activeTimerType === timerType.breakTimer) {
+          this.setState({message: 'A break after a break? Much smart, wow!'})
+        }
+      })
+
+    // set pomodoro pause if the timer is active
+    } else {
+      clearInterval(this.interval)
+      this.prevTimerType = this.state.activeTimerType
+      this.setState({
+        activeTimerType: timerType.paused,
+        message: 'Freeze!'
+      })
+    }
   }
 
   // switches between break, active, and vice-versa
   switchPomodoroState() {
     if (this.pomodoroActive) {
-      if (this.activeTimerType == timerType.busyTimer) {
+      if (this.state.activeTimerType == timerType.busyTimer) {
         this.setPomodoroBreakState()
       } else {
         this.setPomodoroBusyState()
@@ -97,6 +137,10 @@ export default class App extends React.Component {
 
     return (
       <View style={styles.container}>
+        <Text style={{margin: 20}}>
+          {this.state.message}
+        </Text>
+
         <TimeSettingComponent 
           text='keep BUSY for' 
           minutes={this.state.busyTime} 
@@ -109,13 +153,32 @@ export default class App extends React.Component {
           onSettingsChange={this.handleBreakTimeChange} 
           restrictControlInteraction={this.pomodoroActive} />
 
-        <Button color={this.buttonStyle} title={this.buttonText} onPress={() => this.switchPomodoroState()} />
+        { 
+          this.state.activeTimerType != timerType.paused && 
+          <Button color={this.buttonStyle} title={this.buttonText} onPress={() => this.switchPomodoroState()} />
+        }
 
         <Text style={styles.timer}>
           {('00' + m).slice(-2) + ':' + ('00' + s).slice(-2)}
         </Text>
         
-        {this.pomodoroActive && <Button color='grey' title='cancel session' onPress={() => this.stopPomodoro()} />}
+        {
+          this.pomodoroActive && this.state.activeTimerType != timerType.paused &&
+          <View style={{flexDirection: 'row'}}>
+            <View style={{marginHorizontal: 5}}>
+              <Button title='pause' onPress={() => this.togglePomodoroPause()} />
+            </View>
+            <View style={{marginHorizontal: 5}}>
+              <Button color='grey' title='cancel session' onPress={() => this.stopPomodoro()} />
+            </View>
+          </View>
+
+        }
+        {
+          this.pomodoroActive && this.state.activeTimerType == timerType.paused &&
+          <Button title='resume pomodoro' onPress={() => this.togglePomodoroPause()} />
+        }
+
         {/* <TimerComponent seconds={this.state.runtime} /> */}
       </View>
     );
@@ -134,7 +197,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const timerType = {
+var timerType = {
   busyTimer: 1,
-  breakTimer: 2
+  breakTimer: 2,
+  paused: 3
 }
